@@ -5,8 +5,9 @@ const {
 } = require("@whiskeysockets/baileys");
 
 const pino = require("pino");
+const express = require("express");
 
-const OWNER_NUMBER = "918920017674"; // apna number without +
+const OWNER_NUMBER = "918920017674";
 
 async function startBot() {
 
@@ -35,68 +36,23 @@ async function startBot() {
     }
   });
 
-  // 🔥 Pairing Code Generate
   if (!sock.authState?.creds?.registered) {
     const pairingCode = await sock.requestPairingCode(OWNER_NUMBER);
     console.log("Your Pairing Code is:", pairingCode);
   }
-
-  // Welcome / Goodbye
-  sock.ev.on("group-participants.update", async (update) => {
-    const metadata = await sock.groupMetadata(update.id);
-    const groupName = metadata.subject;
-
-    for (let user of update.participants) {
-      const number = user.split("@")[0];
-
-      if (update.action === "add") {
-        await sock.sendMessage(update.id, {
-          text: `👋 Welcome @${number} to *${groupName}*`,
-          mentions: [user]
-        });
-      }
-
-      if (update.action === "remove") {
-        await sock.sendMessage(update.id, {
-          text: `👋 @${number} left *${groupName}*\n1 contact left from group.`,
-          mentions: [user]
-        });
-      }
-    }
-  });
-
-  // Commands
-  sock.ev.on("messages.upsert", async ({ messages }) => {
-    const msg = messages[0];
-    if (!msg.message || msg.key.fromMe) return;
-
-    const sender = (msg.key.participant || msg.key.remoteJid).split("@")[0];
-    const jid = msg.key.remoteJid;
-
-    const text = msg.message.conversation || 
-                 msg.message.extendedTextMessage?.text;
-
-    if (!text) return;
-
-    // Public
-    if (text === "/botinfo") {
-      await sock.sendMessage(jid, {
-        text: `🤖 Bot Info\nOwner: wa.me/${OWNER_NUMBER}`
-      });
-    }
-
-    // Owner Only
-    if (sender !== OWNER_NUMBER) return;
-
-    if (text.startsWith(".send ")) {
-      const message = text.replace(".send ", "");
-      await sock.sendMessage(jid, { text: message });
-    }
-
-    if (text === ".ping") {
-      await sock.sendMessage(jid, { text: "Bot Active ✅" });
-    }
-  });
 }
 
 startBot();
+
+
+// ✅ EXPRESS SERVER FOR RENDER
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Bot Running ✅");
+});
+
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
+});
