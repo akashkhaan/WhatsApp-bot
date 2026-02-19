@@ -1,13 +1,5 @@
-{
-  "name": "whatsapp-bot",
-  "version": "1.0.0",
-  "description": "Pairing Code WhatsApp Bot",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "@whiskeysockets/baileys": "^6.6.0",
-    "pino": "^8.0.0"
-  }
+"dependencies": {
+  "@whiskeysockets/baileys": "^6.6.0",
+  "pino": "^8.0.0",
+  "express": "^4.18.2"
 }
